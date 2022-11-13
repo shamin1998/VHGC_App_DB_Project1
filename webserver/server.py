@@ -188,18 +188,21 @@ def add():
   g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
 
-
+uid = -1
 @app.route('/login', methods=['POST'])
 def login():
+  global uid
   print(request.args)
   email = request.form['email']
   phone = request.form['phone']
   print("Submitted Email, Phone :",email,phone)
-  cursor = g.conn.execute("SELECT email, phone FROM Users")
+  cursor = g.conn.execute("SELECT uid, email, phone FROM Users")
+  print(cursor)
   for result in cursor:
-    if result[0] == email and result[1] == phone:
+    if result[1] == email and result[2] == phone:
       print("Successful login :",result)
-      context = dict(data = result[0])
+      uid = result[0]
+      context = dict(data = result)
       return render_template("user_home.html", **context)
   #   names.append(result['first_name'])  # can also be accessed using result[0]
   # cursor = g.conn.execute("SELECT name FROM test")
