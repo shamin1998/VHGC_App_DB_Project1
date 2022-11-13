@@ -120,14 +120,14 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT first_name FROM Users")
-  names = []
-  for result in cursor:
-    names.append(result['first_name'])  # can also be accessed using result[0]
-  cursor = g.conn.execute("SELECT name FROM test")
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
+  # cursor = g.conn.execute("SELECT first_name FROM Users")
+  # names = []
+  # for result in cursor:
+  #   names.append(result['first_name'])  # can also be accessed using result[0]
+  # cursor = g.conn.execute("SELECT name FROM test")
+  # for result in cursor:
+  #   names.append(result['name'])
+  # cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -155,14 +155,15 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  # context = dict(data = names)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  # return render_template("index.html", **context)
+  return render_template("index.html")
 
 #
 # This is an example of a different path.  You can see it at
@@ -172,9 +173,10 @@ def index():
 # notice that the functio name is another() rather than index()
 # the functions for each app.route needs to have different names
 #
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
+@app.route('/login_page')
+def login_page():
+  print(request.args)
+  return render_template("login.html")
 
 
 # Example of adding new data to the database
@@ -187,11 +189,26 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
-
+  print(request.args)
+  email = request.form['email']
+  phone = request.form['phone']
+  print("Submitted Email, Phone :",email,phone)
+  cursor = g.conn.execute("SELECT email, phone FROM Users")
+  for result in cursor:
+    if result[0] == email and result[1] == phone:
+      print("Successful login :",result)
+      context = dict(data = result[0])
+      return render_template("user_home.html", **context)
+  #   names.append(result['first_name'])  # can also be accessed using result[0]
+  # cursor = g.conn.execute("SELECT name FROM test")
+  # for result in cursor:
+  #   names.append(result['name'])
+  cursor.close()
+  print("Login Unsuccessful!")
+  return redirect('/login_page')
+  
 
 if __name__ == "__main__":
   import click
